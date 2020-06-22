@@ -55,7 +55,6 @@ class TodoListView(View):
             'today': today,
             'todo_list': todo_list,
         }
-        # return TemplateResponse(request, 'todo/todo_list_step5.html', context)
         return TemplateResponse(request, 'todo/todo_list.html', context)
 
 

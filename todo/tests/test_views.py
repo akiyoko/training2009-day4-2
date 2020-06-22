@@ -4,8 +4,8 @@ from django.test import TestCase
 from todo.models import Todo
 
 
-class TestTodoListView(TestCase):
-    """TodoListViewのテスト"""
+class TestTodoUpdateView(TestCase):
+    """TodoUpdateViewのテスト"""
 
     def setUp(self):
         self.today = date(2020, 6, 1)

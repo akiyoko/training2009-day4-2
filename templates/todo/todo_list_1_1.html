@@ -1,25 +1,24 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>TODOリスト</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
 <h1>TODOリスト</h1>
 <p>今日は {{ today }} です。</p>
 
 {% if todo_list %}
-<table>
+<table class="table">
   <thead>
   <tr>
     <th>タイトル</th>
+    <th>詳細</th>
     <th>期限日</th>
+    <th></th>
   </tr>
   </thead>
   <tbody>
   {% for todo in todo_list %}
   <tr>
-    <td width="60%">{{ todo.title }}</td>
+    <td width="30%">{{ todo.title }}</td>
+    <td width="50%">{{ todo.description|truncatechars:30 }}</td>
     <td>
       <span {% if today > todo.expiration_date %}style="color:red;"{% endif %}>
       {{ todo.expiration_date|default_if_none:"なし" }}
@@ -32,5 +31,4 @@
 {% else %}
 TODOリストがありません。
 {% endif %}
-</body>
-</html>
+{%endblock%}
