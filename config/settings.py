@@ -120,3 +120,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+LOGIN_URL = '/login/'            # 追加
+LOGIN_REDIRECT_URL = '/todo/'    # 追加
+LOGOUT_REDIRECT_URL = '/login/'  # 追加
