@@ -9,15 +9,19 @@ User = get_user_model()
 
 
 class TestTodoUpdateView(TestCase):
-    """TodoUpdateViewのテスト"""
+    """TodoUpdateViewのテストクラス"""
 
     def setUp(self):
         self.password = 'pass12345'
+        # ログイン用のユーザー
         self.user = User.objects.create_user(username='user', email='user@example.com',
                                              password=self.password)
         self.today = date(2020, 9, 1)
+        # self.userが登録ユーザーになっているTODOオブジェクト
         self.todo = Todo.objects.create(title='test-1', expiration_date=self.today,
                                         created_by=self.user)
+        # 登録ユーザーが未設定のTODOオブジェクト
+        self.anon_todo = Todo.objects.create(title='test-2', expiration_date=self.today)
 
     def test_get_success(self):
         """/todo/update/<pk>/へのGETリクエスト（正常系）"""
@@ -36,7 +40,7 @@ class TestTodoUpdateView(TestCase):
         # テストクライアントでログインをシミュレート
         self.client.login(username=self.user.username, password=self.password)
         # テストクライアントでGETリクエストをシミュレート
-        response = self.client.get('/todo/update/{}/'.format(99999))
+        response = self.client.get('/todo/update/{}/'.format(self.anon_todo.id))
 
         # 404エラーになることを検証
         self.assertEqual(response.status_code, 404)
@@ -64,7 +68,7 @@ class TestTodoUpdateView(TestCase):
         # テストクライアントでログインをシミュレート
         self.client.login(username=self.user.username, password=self.password)
         # テストクライアントでPOSTリクエストをシミュレート
-        response = self.client.post('/todo/update/{}/'.format(99999), {
+        response = self.client.post('/todo/update/{}/'.format(self.anon_todo.id), {
             'title': 'test-1-updated',
         }, follow=True)
 
