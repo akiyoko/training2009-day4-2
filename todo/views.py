@@ -51,7 +51,7 @@ from .models import Todo
 class TodoListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         today = timezone.localdate()
-        todo_list = Todo.objects.order_by('expiration_date')
+        todo_list = Todo.objects.filter(created_by=request.user).order_by('expiration_date')
         context = {
             'today': today,
             'todo_list': todo_list,
@@ -80,7 +80,10 @@ class TodoCreateView(LoginRequiredMixin, View):
             return TemplateResponse(request, 'todo/todo_create.html', context)
 
         # オブジェクトを保存
-        form.save()
+        todo = form.save(commit=False)
+        todo.created_by = request.user
+        todo.save()
+
         # TODOリスト画面にリダイレクト
         return HttpResponseRedirect('/todo/')
 
@@ -90,7 +93,7 @@ class TodoUpdateView(LoginRequiredMixin, View):
     def get(self, request, pk, *args, **kwargs):
         # 対象レコードを取得
         try:
-            todo = Todo.objects.get(pk=pk)
+            todo = Todo.objects.get(pk=pk, created_by=request.user)
         except Todo.DoesNotExist:
             raise Http404
 
@@ -103,7 +106,7 @@ class TodoUpdateView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         # 対象レコードを取得
         try:
-            todo = Todo.objects.get(pk=pk)
+            todo = Todo.objects.get(pk=pk, created_by=request.user)
         except Todo.DoesNotExist:
             raise Http404
 

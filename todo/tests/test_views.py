@@ -1,18 +1,27 @@
 from datetime import date
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 
 from todo.models import Todo
+
+User = get_user_model()
 
 
 class TestTodoUpdateView(TestCase):
     """TodoUpdateViewのテスト"""
 
     def setUp(self):
-        self.today = date(2020, 6, 1)
-        self.todo = Todo.objects.create(title='test-1', expiration_date=self.today)
+        self.password = 'pass12345'
+        self.user = User.objects.create_user(username='user', email='user@example.com',
+                                             password=self.password)
+        self.today = date(2020, 9, 1)
+        self.todo = Todo.objects.create(title='test-1', expiration_date=self.today,
+                                        created_by=self.user)
 
     def test_get_success(self):
         """/todo/update/<pk>/へのGETリクエスト（正常系）"""
+        # テストクライアントでログインをシミュレート
+        self.client.login(username=self.user.username, password=self.password)
         # テストクライアントでGETリクエストをシミュレート
         response = self.client.get('/todo/update/{}/'.format(self.todo.id))
 
@@ -21,8 +30,20 @@ class TestTodoUpdateView(TestCase):
         self.assertTemplateUsed(response, 'todo/todo_update.html')
         self.assertContains(response, '<h1>TODO変更</h1>')
 
+    def test_get_if_todo_not_found(self):
+        """/todo/update/<pk>/へのGETリクエスト（存在しないID）"""
+        # テストクライアントでログインをシミュレート
+        self.client.login(username=self.user.username, password=self.password)
+        # テストクライアントでGETリクエストをシミュレート
+        response = self.client.get('/todo/update/{}/'.format(99999))
+
+        # 404エラーになることを検証
+        self.assertEqual(response.status_code, 404)
+
     def test_post_success(self):
         """/todo/update/<pk>/へのPOSTリクエスト（正常系）"""
+        # テストクライアントでログインをシミュレート
+        self.client.login(username=self.user.username, password=self.password)
         # テストクライアントでPOSTリクエストをシミュレート
         response = self.client.post('/todo/update/{}/'.format(self.todo.id), {
             'title': 'test-1-updated',
@@ -37,8 +58,22 @@ class TestTodoUpdateView(TestCase):
         todo = Todo.objects.get(pk=self.todo.id)
         self.assertEqual(todo.title, 'test-1-updated')
 
+    def test_post_if_todo_not_found(self):
+        """/todo/update/<pk>/へのGETリクエスト（存在しないID）"""
+        # テストクライアントでログインをシミュレート
+        self.client.login(username=self.user.username, password=self.password)
+        # テストクライアントでPOSTリクエストをシミュレート
+        response = self.client.post('/todo/update/{}/'.format(99999), {
+            'title': 'test-1-updated',
+        }, follow=True)
+
+        # 404エラーになることを検証
+        self.assertEqual(response.status_code, 404)
+
     def test_post_if_title_is_blank(self):
         """/todo/update/<pk>/へのPOSTリクエスト（バリデーションNG）"""
+        # テストクライアントでログインをシミュレート
+        self.client.login(username=self.user.username, password=self.password)
         # テストクライアントでPOSTリクエストをシミュレート
         response = self.client.post('/todo/update/{}/'.format(self.todo.id), {
             'title': '',
