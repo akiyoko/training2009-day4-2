@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,7 +8,6 @@ from django.test import TestCase
 from todo.models import Todo
 
 User = get_user_model()
-from unittest.mock import patch
 
 
 class TestTodoListView(TestCase):
